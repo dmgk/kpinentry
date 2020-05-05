@@ -124,7 +124,7 @@ gpg_error_t Pinentry::getpinCommand(char* line)
 
     QString password;
 
-    // if we allowed to use the external cache, try reading password from it first
+    // if we're allowed to use the external cache, try reading password from it first
     if (m_allowExternalPasswordCache)
         password = readCachedPassword();
 
@@ -134,10 +134,11 @@ gpg_error_t Pinentry::getpinCommand(char* line)
         password = showPasswordDialog();
 
     if (!password.isEmpty()) {
-        const QByteArray escapedPasswordData = QUrl::toPercentEncoding(password.toUtf8());
-        m_assuan.sendData(escapedPasswordData.constData(), static_cast<size_t>(escapedPasswordData.length()));
+        // no need to percent-escape here, sendData() will do it
+        const QByteArray passwordData = password.toUtf8();
+        m_assuan.sendData(passwordData.constData(), static_cast<size_t>(passwordData.length()));
 
-        // if we allowed to use the external cache, cache the password
+        // if we're allowed to use the external cache, cache the password
         if (m_allowExternalPasswordCache && m_cachePassword)
             storeCachedPassword(password);
     }
@@ -173,17 +174,17 @@ gpg_error_t Pinentry::optionHandler(const char* key, const char* value)
 {
     qCDebug(LOG_KPINENTRY, "option: %s %s", key, value);
 
-    if (strcasecmp(key, "ttyname") == 0)
+    if (!strcasecmp(key, "ttyname"))
         m_ttyname = value;
-    if (strcasecmp(key, "ttytype") == 0)
+    else if (!strcasecmp(key, "ttytype"))
         m_ttytype = value;
-    if (strcasecmp(key, "lc-ctype") == 0)
+    else if (!strcasecmp(key, "lc-ctype"))
         m_lcCtype = value;
-    if (strcasecmp(key, "lc-messages") == 0)
+    else if (!strcasecmp(key, "lc-messages"))
         m_lcMessages = value;
-    if (strcasecmp(key, "no-grab") == 0)
+    else if (!strcasecmp(key, "no-grab"))
         m_noGlobalGrab = true;
-    if (strcasecmp(key, "allow-external-password-cache") == 0)
+    else if (!strcasecmp(key, "allow-external-password-cache"))
         m_allowExternalPasswordCache = true;
 
     return GPG_ERR_NO_ERROR;

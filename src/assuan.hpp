@@ -1,16 +1,16 @@
 #ifndef KPINENTRY_ASSUAN_HPP
 #define KPINENTRY_ASSUAN_HPP
 
-#include <assuan.h>
 #include <exception>
 #include <string>
 #include <sstream>
+#include <assuan.h>
 
 class AssuanError : public std::exception
 {
 public:
     explicit AssuanError(std::string msg)
-        : m_msg{std::move(msg)}, m_gpgError{0}
+        : m_msg{std::move(msg)}
     {}
 
     AssuanError(std::string msg, gpg_error_t err)
@@ -33,19 +33,17 @@ public:
 
 private:
     std::string m_msg;
-    gpg_error_t m_gpgError;
+    gpg_error_t m_gpgError = GPG_ERR_NO_ERROR;
 };
 
-class Assuan final
+class Assuan
 {
 public:
     explicit Assuan(void* userData)
-        : m_ctx{nullptr}
     {
         gpg_error_t err = assuan_new(&m_ctx);
         if (err != GPG_ERR_NO_ERROR)
             throw AssuanError("failed to initialize ctx", err);
-
         assuan_set_pointer(m_ctx, userData);
     }
 
@@ -57,28 +55,27 @@ public:
     Assuan(const Assuan&) = delete;
     Assuan& operator=(const Assuan&) = delete;
 
-    Assuan(Assuan&& ctx) noexcept
-        : m_ctx{nullptr}
+    Assuan(Assuan&& assuan) noexcept
     {
-        *this = std::move(ctx);
+        *this = std::move(assuan);
     }
 
-    Assuan& operator=(Assuan&& ctx) noexcept
+    Assuan& operator=(Assuan&& assuan) noexcept
     {
-        if (this != &ctx) {
+        if (this != &assuan) {
             assuan_release(m_ctx);
             m_ctx = nullptr;
-            std::swap(m_ctx, ctx.m_ctx);
+            std::swap(m_ctx, assuan.m_ctx);
         }
         return *this;
     }
 
     void initServer()
     {
-        assuan_fd_t fds[2];
-        fds[0] = assuan_fdopen(STDIN_FILENO);
-        fds[1] = assuan_fdopen(STDOUT_FILENO);
-
+        assuan_fd_t fds[] = {
+            assuan_fdopen(STDIN_FILENO),
+            assuan_fdopen(STDOUT_FILENO)
+        };
         gpg_error_t err = assuan_init_pipe_server(m_ctx, fds);
         if (err != GPG_ERR_NO_ERROR)
             throw AssuanError("failed to initialize server", err);
@@ -137,7 +134,7 @@ public:
     }
 
 private:
-    assuan_context_t m_ctx;
+    assuan_context_t m_ctx = nullptr;
 };
 
 #endif //KPINENTRY_ASSUAN_HPP

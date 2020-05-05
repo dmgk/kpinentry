@@ -42,9 +42,7 @@ private:
     void storeCachedPassword(const QString& password);
     void removeCachedPassword();
 
-private:
     Assuan m_assuan;
-
     QString m_ttyname;
     QString m_ttytype;
     QString m_lcCtype;
