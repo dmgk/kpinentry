@@ -98,7 +98,7 @@ static QString percentUnescape(const char* str)
 
 gpg_error_t Pinentry::setdescCommand(char* line)
 {
-    qCDebug(LOG_KPINENTRY, "setdesc: %s", line);
+    LOG_DEBUGF("%s", line);
 
     m_desc = percentUnescape(line);
     return GPG_ERR_NO_ERROR;
@@ -106,7 +106,7 @@ gpg_error_t Pinentry::setdescCommand(char* line)
 
 gpg_error_t Pinentry::setpromptCommand(char* line)
 {
-    qCDebug(LOG_KPINENTRY, "setprompt: %s", line);
+    LOG_DEBUGF("%s", line);
 
     m_prompt = percentUnescape(line);
     return GPG_ERR_NO_ERROR;
@@ -114,7 +114,7 @@ gpg_error_t Pinentry::setpromptCommand(char* line)
 
 gpg_error_t Pinentry::setkeyinfoCommand(char* line)
 {
-    qCDebug(LOG_KPINENTRY, "setkeyinfo: %s", line);
+    LOG_DEBUGF("%s", line);
 
     m_keyinfo = percentUnescape(line);
     return GPG_ERR_NO_ERROR;
@@ -122,7 +122,7 @@ gpg_error_t Pinentry::setkeyinfoCommand(char* line)
 
 gpg_error_t Pinentry::getpinCommand(char* line)
 {
-    qCDebug(LOG_KPINENTRY, "getpin: %s", line);
+    LOG_DEBUGF("%s", line);
 
     QString password;
 
@@ -150,7 +150,7 @@ gpg_error_t Pinentry::getpinCommand(char* line)
 
 gpg_error_t Pinentry::seterrorCommand(char* line)
 {
-    qCDebug(LOG_KPINENTRY, "seterror: %s", line);
+    LOG_DEBUGF("%s", line);
 
     m_error = percentUnescape(line);
     if (m_error.startsWith("Bad Passphrase"))   // XXX
@@ -161,7 +161,7 @@ gpg_error_t Pinentry::seterrorCommand(char* line)
 
 gpg_error_t Pinentry::clearpassphraseCommand(char* line)
 {
-    qCDebug(LOG_KPINENTRY, "clearpassphrase: %s", line);
+    LOG_DEBUGF("%s", line);
 
     removeCachedPassword();
     return GPG_ERR_NO_ERROR;
@@ -169,7 +169,7 @@ gpg_error_t Pinentry::clearpassphraseCommand(char* line)
 
 gpg_error_t Pinentry::getinfoCommand(char* line)
 {
-    qCDebug(LOG_KPINENTRY, "getinfo: %s", line);
+    LOG_DEBUGF("%s", line);
 
     try {
         if (!strcasecmp(line, "pid")) {
@@ -194,7 +194,7 @@ void Pinentry::registerOptionHandler()
 
 gpg_error_t Pinentry::optionHandler(const char* key, const char* value)
 {
-    qCDebug(LOG_KPINENTRY, "option: %s %s", key, value);
+    LOG_DEBUGF("%s %s", key, value);
 
     if (!strcasecmp(key, "ttyname"))
         m_ttyname = value;
@@ -243,19 +243,19 @@ QString Pinentry::readCachedPassword()
         QApplication::desktop()->winId());
 
     if (!wallet) {
-        qCCritical(LOG_KPINENTRY, "kwalletCacheLoad: failed to open wallet");
+        LOG_ERROR("failed to open wallet");
         return "";
     }
 
     if (wallet->hasFolder(folderName)) {
         if (!wallet->setFolder(folderName)) {
-            qCCritical(LOG_KPINENTRY, "kwalletCacheLoad: failed to set folder name");
+            LOG_ERROR("failed to set folder name");
             return "";
         }
         if (wallet->hasEntry(key)) {
             QString password;
             if (wallet->readPassword(key, password)) {
-                qCCritical(LOG_KPINENTRY, "kwalletCacheLoad: failed to read password");
+                LOG_ERROR("failed to read password");
                 return "";
             }
             return password;
@@ -275,23 +275,23 @@ void Pinentry::storeCachedPassword(const QString& password)
         QApplication::desktop()->winId());
 
     if (!wallet) {
-        qCCritical(LOG_KPINENTRY, "kwalletCacheStore: failed to open wallet");
+        LOG_ERROR("failed to open wallet");
         return;
     }
 
     if (!wallet->hasFolder(folderName)) {
         if (!wallet->createFolder(folderName)) {
-            qCCritical(LOG_KPINENTRY, "kwalletCacheStore: failed to set folder name");
+            LOG_ERROR("failed to set folder name");
             return;
         }
     }
 
     if (!wallet->setFolder(folderName)) {
-        qCCritical(LOG_KPINENTRY, "kwalletCacheStore: failed to set folder name");
+        LOG_ERROR("failed to set folder name");
         return;
     }
     if (wallet->writePassword(key, password))
-        qCCritical(LOG_KPINENTRY, "kwalletCacheStore: failed to write");
+        LOG_ERROR("failed to write");
 }
 
 void Pinentry::removeCachedPassword()
@@ -303,12 +303,12 @@ void Pinentry::removeCachedPassword()
         QApplication::desktop()->winId());
 
     if (!wallet) {
-        qCCritical(LOG_KPINENTRY, "kwalletCacheStore: failed to open wallet");
+        LOG_ERROR("failed to open wallet");
         return;
     }
 
     if (wallet->hasFolder(folderName)) {
         if (!wallet->removeFolder(folderName))
-            qCCritical(LOG_KPINENTRY, "kwalletCacheStore: failed to remove folder");
+            LOG_ERROR("failed to remove folder");
     }
 }

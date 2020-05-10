@@ -37,7 +37,7 @@ int main(int argc, char* argv[])
         pinentry.run();
     }
     catch (const std::exception& e) {
-        qCCritical(LOG_KPINENTRY, "%s", e.what());
+        LOG_ERRORF("%s", e.what());
         return EXIT_FAILURE;
     }
 
