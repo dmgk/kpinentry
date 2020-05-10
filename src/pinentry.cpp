@@ -1,3 +1,4 @@
+#include "config.h"
 #include "pinentry.hpp"
 #include "logging.hpp"
 #include <QDesktopWidget>
@@ -83,8 +84,7 @@ void Pinentry::registerCommandHandlers()
         {"SETERROR",        wrap<&Pinentry::seterrorCommand>()},
         {"GETPIN",          wrap<&Pinentry::getpinCommand>()},
         {"CLEARPASSPHRASE", wrap<&Pinentry::clearpassphraseCommand>()},
-		// TODO: handle "GETINFO pid"
-        // {"GETINFO", wrap<&Pinentry::getinfoCommand>()},
+        {"GETINFO",         wrap<&Pinentry::getinfoCommand>()}
     };
 
     for (const auto& command : commands)
@@ -164,6 +164,26 @@ gpg_error_t Pinentry::clearpassphraseCommand(char* line)
     qCDebug(LOG_KPINENTRY, "clearpassphrase: %s", line);
 
     removeCachedPassword();
+    return GPG_ERR_NO_ERROR;
+}
+
+gpg_error_t Pinentry::getinfoCommand(char* line)
+{
+    qCDebug(LOG_KPINENTRY, "getinfo: %s", line);
+
+    try {
+        if (!strcasecmp(line, "pid")) {
+            std::ostringstream oss;
+            oss << getpid();
+            m_assuan.sendData(oss.str().c_str(), oss.str().length());
+        } else if (!strcasecmp(line, "version")) {
+            m_assuan.sendData(PROJECT_VERSION, strlen(PROJECT_VERSION));
+        }
+    }
+    catch (const AssuanError& ex) {
+        return ex.gpgError();
+    }
+
     return GPG_ERR_NO_ERROR;
 }
 

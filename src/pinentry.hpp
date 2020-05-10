@@ -32,6 +32,7 @@ private:
     gpg_error_t getpinCommand(char* line);
     gpg_error_t seterrorCommand(char* line);
     gpg_error_t clearpassphraseCommand(char* line);
+    gpg_error_t getinfoCommand(char* line);
 
     void registerOptionHandler();
     gpg_error_t optionHandler(const char* key, const char* value);

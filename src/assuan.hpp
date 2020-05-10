@@ -16,9 +16,9 @@ public:
     AssuanError(std::string msg, gpg_error_t err)
         : m_gpgError{err}
     {
-        std::ostringstream ostringstream{msg};
-        ostringstream << ": " << gpg_strerror(err);
-        msg = ostringstream.str();
+        std::ostringstream oss{msg};
+        oss << ": " << gpg_strerror(err);
+        msg = oss.str();
     }
 
     [[nodiscard]] const char* what() const noexcept override
