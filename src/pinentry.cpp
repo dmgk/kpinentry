@@ -83,6 +83,8 @@ void Pinentry::registerCommandHandlers()
         {"SETERROR",        wrap<&Pinentry::seterrorCommand>()},
         {"GETPIN",          wrap<&Pinentry::getpinCommand>()},
         {"CLEARPASSPHRASE", wrap<&Pinentry::clearpassphraseCommand>()},
+		// TODO: handle "GETINFO pid"
+        // {"GETINFO", wrap<&Pinentry::getinfoCommand>()},
     };
 
     for (const auto& command : commands)

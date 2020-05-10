@@ -33,13 +33,11 @@ find_package(Qt5 ${QT_MIN_VERSION} REQUIRED COMPONENTS
 # KDE components
 set(KF5_MIN_VERSION "5.66.0")
 # silence FindPackageHandleStandardArgs warnings
-set(FPHSA_NAME_MISMATCHED TRUE)
 find_package(KF5 ${KF5_MIN_VERSION} REQUIRED COMPONENTS
     CoreAddons
     I18n
     WidgetsAddons
     Wallet)
-set(FPHSA_NAME_MISMATCHED FALSE)
 
 # Other packages/libraries
 find_package(LibAssuan REQUIRED)
