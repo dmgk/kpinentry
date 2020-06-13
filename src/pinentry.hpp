@@ -12,6 +12,20 @@
 
 class Pinentry
 {
+    Assuan m_assuan{this};
+
+    QString m_ttyname;
+    QString m_ttytype;
+    QString m_lcCtype;
+    QString m_lcMessages;
+    QString m_desc;
+    QString m_prompt;
+    QString m_keyinfo;
+    QString m_error;
+    bool m_noGlobalGrab{false};
+    bool m_allowExternalPasswordCache{false};
+    bool m_cachePassword{false};
+
 public:
     Pinentry();
     ~Pinentry() = default;
@@ -42,19 +56,6 @@ private:
     QString readCachedPassword();
     void storeCachedPassword(const QString& password);
     void removeCachedPassword();
-
-    Assuan m_assuan;
-    QString m_ttyname;
-    QString m_ttytype;
-    QString m_lcCtype;
-    QString m_lcMessages;
-    QString m_desc;
-    QString m_prompt;
-    QString m_keyinfo;
-    QString m_error;
-    bool m_noGlobalGrab = false;
-    bool m_allowExternalPasswordCache = false;
-    bool m_cachePassword = false;
 };
 
 #endif // KPINENTRY_PINENTRY_HPP

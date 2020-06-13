@@ -8,17 +8,17 @@
 
 class AssuanError : public std::exception
 {
-public:
-    explicit AssuanError(std::string msg)
-        : m_msg{std::move(msg)}
-    {}
+    std::string m_msg;
+    gpg_error_t m_gpgError{GPG_ERR_NO_ERROR};
 
-    AssuanError(std::string msg, gpg_error_t err)
-        : m_gpgError{err}
+public:
+    explicit AssuanError(const char* msg, gpg_error_t err = GPG_ERR_NO_ERROR)
     {
         std::ostringstream oss{msg};
-        oss << ": " << gpg_strerror(err);
-        msg = oss.str();
+        if (err != GPG_ERR_NO_ERROR)
+            oss << ": " << gpg_strerror(err);
+        m_msg = oss.str();
+        m_gpgError = err;
     }
 
     [[nodiscard]] const char* what() const noexcept override
@@ -30,14 +30,12 @@ public:
     {
         return m_gpgError;
     }
-
-private:
-    std::string m_msg;
-    gpg_error_t m_gpgError = GPG_ERR_NO_ERROR;
 };
 
 class Assuan
 {
+    assuan_context_t m_ctx{nullptr};
+
 public:
     explicit Assuan(void* userData)
     {
@@ -132,9 +130,6 @@ public:
         if (err != GPG_ERR_NO_ERROR)
             throw AssuanError("failed to write status", err);
     }
-
-private:
-    assuan_context_t m_ctx = nullptr;
 };
 
-#endif //KPINENTRY_ASSUAN_HPP
+#endif // KPINENTRY_ASSUAN_HPP

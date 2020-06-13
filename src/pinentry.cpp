@@ -8,7 +8,6 @@
 #include <KPasswordDialog>
 
 Pinentry::Pinentry()
-    : m_assuan{this}
 {
     registerCommandHandlers();
     registerOptionHandler();
